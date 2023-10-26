@@ -4,15 +4,19 @@ import { get, merge } from 'lodash';
 import { getUserBySessionToken } from '../models/User';
 import { ObjectId } from 'mongoose';
 
+interface CustomRequest extends express.Request {
+  identity?: Record<string, any>;
+}
+
 export const isOwner = async (
-  req: express.Request,
+  req: CustomRequest,
   res: express.Response,
   next: express.NextFunction
 ) => {
   try {
     const { id } = req.params;
 
-    const currentUserId = get(req, 'identity._id') as ObjectId;
+    const currentUserId: ObjectId = req.identity._id;
 
     if (!currentUserId) {
       return res.sendStatus(403);
@@ -30,7 +34,7 @@ export const isOwner = async (
 };
 
 export const isAuthenticated = async (
-  req: express.Request,
+  req: CustomRequest,
   res: express.Response,
   next: express.NextFunction
 ) => {
@@ -47,7 +51,7 @@ export const isAuthenticated = async (
       return res.sendStatus(403);
     }
 
-    merge(req, { identity: existingUser });
+    req.identity = existingUser;
 
     return next();
   } catch (error) {
