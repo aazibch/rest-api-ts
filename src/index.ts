@@ -7,6 +7,8 @@ import compression from 'compression';
 import cors from 'cors';
 import mongoose from 'mongoose';
 
+import router from './router';
+
 const app = express();
 
 app.use(
@@ -31,3 +33,5 @@ mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log('Connected to the database...'));
 mongoose.connection.on('error', (error: Error) => console.log(error));
+
+app.use('/', router());
